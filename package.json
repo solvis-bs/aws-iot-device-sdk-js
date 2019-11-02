@@ -1,5 +1,5 @@
 {
-  "name": "aws-iot-device-sdk",
+  "name": "aws-iot-device-sdk-min",
   "description": "AWS IoT Node.js SDK for Embedded Devices",
   "version": "2.2.2",
   "author": {
