@@ -19,7 +19,9 @@ var inherits = require('util').inherits;
 
 //npm deps
 var mqtt = require('mqtt');
-var crypto = require('crypto-js');
+var SHA256 = require("crypto-js/sha256");
+var HmacSHA256 = require("crypto-js/hmac-sha256");
+
 
 //app deps
 var exceptions = require('./lib/exceptions');
@@ -54,16 +56,16 @@ function getDateString(dateTimeString) {
 }
 
 function getSignatureKey(key, dateStamp, regionName, serviceName) {
-  var kDate = crypto.HmacSHA256(dateStamp, 'AWS4' + key, {
+  var kDate = HmacSHA256(dateStamp, 'AWS4' + key, {
     asBytes: true
   });
-  var kRegion = crypto.HmacSHA256(regionName, kDate, {
+  var kRegion = HmacSHA256(regionName, kDate, {
     asBytes: true
   });
-  var kService = crypto.HmacSHA256(serviceName, kRegion, {
+  var kService = HmacSHA256(serviceName, kRegion, {
     asBytes: true
   });
-  var kSigning = crypto.HmacSHA256('aws4_request', kService, {
+  var kSigning = HmacSHA256('aws4_request', kService, {
     asBytes: true
   });
   return kSigning;
@@ -82,7 +84,7 @@ function signUrl(method, scheme, hostname, path, queryParams, accessId, secretKe
     canonicalHeaders + // headers
     '\n' + // required
     signedHeaders + '\n' + // signed header list
-    crypto.SHA256(payload, {
+    SHA256(payload, {
       asBytes: true
     }); // hash of payload (empty string)
 
@@ -90,7 +92,7 @@ function signUrl(method, scheme, hostname, path, queryParams, accessId, secretKe
     console.log('canonical request: ' + canonicalRequest + '\n');
   }
 
-  var hashedCanonicalRequest = crypto.SHA256(canonicalRequest, {
+  var hashedCanonicalRequest = SHA256(canonicalRequest, {
     asBytes: true
   });
 
@@ -113,7 +115,7 @@ function signUrl(method, scheme, hostname, path, queryParams, accessId, secretKe
     console.log('signing key: ' + signingKey + '\n');
   }
 
-  var signature = crypto.HmacSHA256(stringToSign, signingKey, {
+  var signature = HmacSHA256(stringToSign, signingKey, {
     asBytes: true
   });
 
